@@ -1,0 +1,54 @@
+{
+  "name": "@daliusd/prettier-lsp",
+  "version": "0.4.0",
+  "description": "Prettier Language Server Protocol implementation with diagnostic support",
+  "main": "dist/server.js",
+  "bin": {
+    "prettier-lsp": "./bin/prettier-lsp"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b --watch",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daliusd/prettier-lsp.git"
+  },
+  "author": "Dalius Dobravolskas",
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "prettier",
+    "lsp",
+    "language-server",
+    "formatting",
+    "formatter"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/ui": "^4.0.12",
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.12"
+  },
+  "dependencies": {
+    "prettier": "^3.0.0",
+    "vscode-languageserver": "^9.0.0",
+    "vscode-languageserver-textdocument": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "@babel/parser": "^7.28.5",
+    "@typescript-eslint/typescript-estree": "^8.46.4"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "LICENSE",
+    "README.md"
+  ]
+}
