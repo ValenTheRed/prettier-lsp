@@ -9,9 +9,14 @@ import {
   TextEdit,
   Diagnostic,
   DiagnosticSeverity,
+  DocumentRangeFormattingParams,
 } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { formatText, getFormattingDiagnostics } from './formatter';
+import {
+  FormatOptions,
+  formatText,
+  getFormattingDiagnostics,
+} from './formatter';
 
 // Settings interface
 interface PrettierLspSettings {
@@ -65,6 +70,7 @@ connection.onInitialize((params: InitializeParams) => {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       documentFormattingProvider: true,
+      documentRangeFormattingProvider: true,
     },
     serverInfo: {
       name: 'prettier-lsp',
@@ -155,6 +161,30 @@ function buildFormatOptions(settings: PrettierLspSettings) {
   };
 }
 
+function minimalEdit(document: TextDocument, formatted: string): TextEdit {
+  const text = document.getText();
+
+  // length of common prefix
+  let i = 0;
+  while (i < text.length && i < formatted.length && text[i] === formatted[i]) {
+    ++i;
+  }
+  // length of common suffix
+  let j = 0;
+  while (
+    i + j < text.length &&
+    i + j < formatted.length &&
+    text[text.length - j - 1] === formatted[formatted.length - j - 1]
+  ) {
+    ++j;
+  }
+  const newText = formatted.substring(i, formatted.length - j);
+  const start = document.positionAt(i);
+  const end = document.positionAt(text.length - j);
+
+  return TextEdit.replace({ start, end }, newText);
+}
+
 // Validate document and send diagnostics
 async function validateDocument(document: TextDocument): Promise<void> {
   const text = document.getText();
@@ -232,6 +262,40 @@ connection.onDocumentFormatting(
           formatted,
         ),
       ];
+    } catch (error) {
+      connection.console.error(`Formatting error: ${error}`);
+      return null;
+    }
+  },
+);
+connection.onDocumentRangeFormatting(
+  async (params: DocumentRangeFormattingParams): Promise<TextEdit[] | null> => {
+    connection.console.log('onDocumentRangeFormatting');
+
+    const document = documents.get(params.textDocument.uri);
+    if (!document) {
+      return null;
+    }
+
+    try {
+      const text = document.getText();
+      const settings = await getDocumentSettings(document.uri);
+      const options = buildFormatOptions(settings);
+      const rangeStart = document.offsetAt(params.range.start);
+      const rangeEnd = document.offsetAt(params.range.end);
+
+      const formatted = await formatText(
+        params.textDocument.uri,
+        text,
+        workspaceRoot || process.cwd(),
+        options,
+        { rangeStart, rangeEnd },
+      );
+
+      if (formatted === null || formatted === text) {
+        return null;
+      }
+      return [minimalEdit(document, formatted)];
     } catch (error) {
       connection.console.error(`Formatting error: ${error}`);
       return null;
