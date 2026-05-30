@@ -11,6 +11,11 @@ export interface FormatOptions extends ResolverOptions {
   editorconfig?: boolean;
 }
 
+export interface RangeOptions {
+  rangeStart: number;
+  rangeEnd: number;
+}
+
 export interface FormattingDiagnostic {
   line: number;
   originalLine: string;
@@ -278,6 +283,7 @@ export async function formatText(
   text: string,
   workspaceRoot: string,
   options: FormatOptions = {},
+  range?: RangeOptions,
 ): Promise<string | null> {
   const {
     ignorePath = '.prettierignore',
@@ -317,6 +323,7 @@ export async function formatText(
   // Format the text
   try {
     const formatted = await prettier.format(text, {
+      ...range,
       ...fileOptions,
       filepath: fullPath,
     });
