@@ -24,6 +24,9 @@ interface PrettierLspSettings {
   defaultConfig?: string;
   ignorePath?: string;
   editorconfig?: boolean;
+  validate?: {
+    enable: boolean;
+  };
 }
 
 // Create LSP connection
@@ -41,6 +44,9 @@ const defaultSettings: PrettierLspSettings = {
   defaultConfig: undefined,
   ignorePath: '.prettierignore',
   editorconfig: true,
+  validate: {
+    enable: true,
+  },
 };
 
 // Server settings
@@ -111,6 +117,7 @@ async function getDocumentSettings(
     defaultConfig: settings.defaultConfig ?? defaultSettings.defaultConfig,
     ignorePath: settings.ignorePath ?? defaultSettings.ignorePath,
     editorconfig: settings.editorconfig ?? defaultSettings.editorconfig,
+    validate: settings.validate ?? defaultSettings.validate,
   };
 }
 
@@ -129,6 +136,7 @@ connection.onDidChangeConfiguration((change) => {
       ignorePath: incomingSettings.ignorePath ?? defaultSettings.ignorePath,
       editorconfig:
         incomingSettings.editorconfig ?? defaultSettings.editorconfig,
+      validate: incomingSettings.validate ?? defaultSettings.editorconfig,
     };
   }
 
@@ -187,12 +195,16 @@ function minimalEdit(document: TextDocument, formatted: string): TextEdit {
 
 // Validate document and send diagnostics
 async function validateDocument(document: TextDocument): Promise<void> {
-  const text = document.getText();
   const diagnostics: Diagnostic[] = [];
 
   try {
     const settings = await getDocumentSettings(document.uri);
+    if (!settings.validate?.enable) {
+      return;
+    }
     const options = buildFormatOptions(settings);
+
+    const text = document.getText();
 
     const formattingIssues = await getFormattingDiagnostics(
       document.uri,
