@@ -1,6 +1,6 @@
 {
-  "name": "@daliusd/prettier-lsp",
-  "version": "0.4.0",
+  "name": "@valenthered/prettier-lsp",
+  "version": "0.5.0",
   "description": "Prettier Language Server Protocol implementation with diagnostic support",
   "main": "dist/server.js",
   "bin": {
@@ -16,9 +16,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daliusd/prettier-lsp.git"
+    "url": "git+https://github.com/valenTheRed/prettier-lsp.git"
   },
-  "author": "Dalius Dobravolskas",
+  "author": "Pranjal Soni",
+  "contributors": ["Dalius Dobravolskas"],
   "license": "ISC",
   "publishConfig": {
     "access": "public"
