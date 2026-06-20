@@ -4,7 +4,7 @@
   "description": "Prettier Language Server Protocol implementation with diagnostic support",
   "main": "dist/server.js",
   "bin": {
-    "prettier-lsp": "./bin/prettier-lsp"
+    "prettier-lsp": "bin/prettier-lsp"
   },
   "scripts": {
     "build": "tsc -b",
@@ -19,7 +19,9 @@
     "url": "git+https://github.com/valenTheRed/prettier-lsp.git"
   },
   "author": "Pranjal Soni",
-  "contributors": ["Dalius Dobravolskas"],
+  "contributors": [
+    "Dalius Dobravolskas"
+  ],
   "license": "ISC",
   "publishConfig": {
     "access": "public"
